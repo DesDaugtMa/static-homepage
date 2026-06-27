@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-static
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, static]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync to nginx web root
+        run: |
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.gitignore' \
+            --exclude='README.md' \
+            ./ /opt/static/html/
+
+      - name: Reload nginx cache
+        run: |
+          curl -fsS -o /dev/null -H 'Cache-Control: no-cache' \
+            "http://127.0.0.1/" \
+            && echo "nginx is serving the new site"
