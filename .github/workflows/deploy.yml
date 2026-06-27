@@ -25,9 +25,3 @@ jobs:
             --exclude='.gitignore' \
             --exclude='README.md' \
             ./ /opt/static/html/
-
-      - name: Reload nginx cache
-        run: |
-          curl -fsS -o /dev/null -H 'Cache-Control: no-cache' \
-            "http://127.0.0.1/" \
-            && echo "nginx is serving the new site"
